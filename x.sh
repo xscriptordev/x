@@ -3,9 +3,29 @@ set -euo pipefail
 
 # X base
 
+if [[ ! -x /usr/bin/x ]] || ! grep -q 'exec sudo "$@"' /usr/bin/x 2>/dev/null; then
+  sudo sh -c 'cat > /usr/bin/x << "EOF"
+#!/usr/bin/env bash
+exec sudo "$@"
+EOF'
+  sudo chmod 755 /usr/bin/x
+fi
+alias x &>/dev/null && unalias x || true
+if [[ -n "${RCFILE:-}" ]] && [[ -f "$RCFILE" ]]; then
+  sed -i '/^[[:space:]]*alias[[:space:]]*x=.*$/d' "$RCFILE" || true
+fi
+if [[ -f "$HOME/.zshrc" ]]; then
+  sed -i '/^[[:space:]]*alias[[:space:]]*x=.*$/d' "$HOME/.zshrc" || true
+fi
+if [[ -f /etc/bash.bashrc ]]; then
+  x sed -i '/^[[:space:]]*alias[[:space:]]*x=.*$/d' /etc/bash.bashrc || true
+fi
+if [[ -f /etc/zsh/zshrc ]]; then
+  x sed -i '/^[[:space:]]*alias[[:space:]]*x=.*$/d' /etc/zsh/zshrc || true
+fi
+
 ALIASES="
 # ───── Xscriptor Aliases ─────
-alias x='sudo'
 alias xs='sudo su'
 alias xi='sudo -i'
 alias xsh='sudo -s'
@@ -13,7 +33,6 @@ alias xzdev='zellij --layout x'
 "
 
 shopt -s expand_aliases
-alias x='sudo'
 alias xs='sudo su'
 alias xi='sudo -i'
 alias xsh='sudo -s'
@@ -122,7 +141,7 @@ esac
 
 # Add to user shell rc
 if [[ -n "$RCFILE" ]]; then
-  if ! grep -q "alias x='sudo'" "$RCFILE" 2>/dev/null; then
+  if ! grep -q "Xscriptor Aliases" "$RCFILE" 2>/dev/null; then
     echo "$ALIASES" >> "$RCFILE"
     echo "[+] Aliases added to $RCFILE"
   else
@@ -142,7 +161,7 @@ if [[ -n "$RCFILE" ]]; then
 fi
 
 if [[ -f /etc/bash.bashrc ]]; then
-  if ! grep -q "alias x='sudo'" /etc/bash.bashrc 2>/dev/null; then
+  if ! grep -q "Xscriptor Aliases" /etc/bash.bashrc 2>/dev/null; then
     echo "$ALIASES" | x tee -a /etc/bash.bashrc >/dev/null
   fi
   if ! grep -q "XCustom Git Aliases" /etc/bash.bashrc 2>/dev/null; then
@@ -154,7 +173,7 @@ if [[ -f /etc/bash.bashrc ]]; then
 fi
 
 if [[ -f /etc/zsh/zshrc ]]; then
-  if ! grep -q "alias x='sudo'" /etc/zsh/zshrc 2>/dev/null; then
+  if ! grep -q "Xscriptor Aliases" /etc/zsh/zshrc 2>/dev/null; then
     echo "$ALIASES" | x tee -a /etc/zsh/zshrc >/dev/null
   fi
   if ! grep -q "XCustom Git Aliases" /etc/zsh/zshrc 2>/dev/null; then
@@ -165,7 +184,7 @@ if [[ -f /etc/zsh/zshrc ]]; then
   fi
 fi
 
-if ! grep -q "alias x='sudo'" "$HOME/.zshrc" 2>/dev/null; then
+if ! grep -q "Xscriptor Aliases" "$HOME/.zshrc" 2>/dev/null; then
   echo "$ALIASES" >> "$HOME/.zshrc"
 fi
 
