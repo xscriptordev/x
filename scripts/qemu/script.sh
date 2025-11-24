@@ -20,10 +20,15 @@ if pacman -Qi iptables &>/dev/null; then
   pkgs=("${pkgs[@]/iptables-nft}")
 fi
 
-x pacman -Syu --needed "${pkgs[@]}"
+ignore=()
+if pacman -Qi iptables &>/dev/null; then
+  ignore+=(--ignore iptables-nft)
+elif pacman -Qi iptables-nft &>/dev/null; then
+  echo "[XOs] nftables backend detected. Preventing legacy provider installation."
+  ignore+=(--ignore iptables)
+fi
 
-
-x pacman -Syu --needed "${pkgs[@]}"
+x pacman -Syu --needed "${ignore[@]}" "${pkgs[@]}"
 
 echo "[XOs] Enabling services..."
 x systemctl enable --now libvirtd.service
