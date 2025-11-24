@@ -21,11 +21,9 @@ if pacman -Qi iptables &>/dev/null; then
 fi
 
 ignore=()
-if pacman -Qi iptables &>/dev/null; then
-  ignore+=(--ignore iptables-nft)
-elif pacman -Qi iptables-nft &>/dev/null; then
-  echo "[XOs] nftables backend detected. Preventing legacy provider installation."
-  ignore+=(--ignore iptables)
+if pacman -Qi iptables &>/dev/null || pacman -Qi iptables-nft &>/dev/null || command -v iptables &>/dev/null; then
+  echo "[XOs] iptables provider detected. Skipping provider installation and continuing."
+  ignore+=(--ignore iptables --ignore iptables-nft)
 fi
 
 x pacman -Syu --needed "${ignore[@]}" "${pkgs[@]}"
