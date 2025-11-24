@@ -3,20 +3,25 @@ set -euo pipefail
 
 echo "[XOs] Installing QEMU + libvirt + virt-manager stack…"
 
-# ─── Detect iptables backend ───
 pkgs=(
   qemu-full libvirt virt-manager virt-viewer edk2-ovmf dnsmasq swtpm
   guestfs-tools libosinfo bridge-utils vde2 openbsd-netcat ebtables
 )
 
-if pacman -Qi iptables-nft &>/dev/null; then
-  echo "[XOs] Using iptables-nft backend."
-elif pacman -Qi iptables &>/dev/null; then
-  echo "[XOs] Using legacy iptables backend."
-else
-  echo "[XOs] No iptables backend found. Installing iptables-nft."
+# Add iptables-nft only if no backend exists
+if ! pacman -Qi iptables &>/dev/null && \
+   ! pacman -Qi iptables-nft &>/dev/null; then
   pkgs+=(iptables-nft)
 fi
+
+# FORCE FILTER: remove iptables-nft if legacy backend exists
+if pacman -Qi iptables &>/dev/null; then
+  echo "[XOs] Legacy iptables detected. Removing iptables-nft from package list."
+  pkgs=("${pkgs[@]/iptables-nft}")
+fi
+
+x pacman -Syu --needed "${pkgs[@]}"
+
 
 x pacman -Syu --needed "${pkgs[@]}"
 
