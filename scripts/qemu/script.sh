@@ -3,9 +3,15 @@ set -euo pipefail
 
 echo "[XOs] Installing QEMU + libvirt + virt-manager stack…"
 
-x pacman -Syu --needed \
-  qemu-full libvirt virt-manager virt-viewer edk2-ovmf dnsmasq swtpm guestfs-tools libosinfo \
-  bridge-utils vde2 openbsd-netcat ebtables iptables-nft
+pkgs=(qemu-full libvirt virt-manager virt-viewer edk2-ovmf dnsmasq swtpm guestfs-tools libosinfo bridge-utils vde2 openbsd-netcat ebtables)
+if command -v iptables &>/dev/null; then
+  :
+elif command -v pacman &>/dev/null && { pacman -Qi iptables-nft &>/dev/null || pacman -Qi iptables &>/dev/null || pacman -Qi iptables-legacy &>/dev/null; }; then
+  :
+else
+  pkgs+=(iptables-nft)
+fi
+x pacman -Syu --needed "${pkgs[@]}"
 
 echo "[XOs] Enabling services..."
 x systemctl enable --now libvirtd.service
