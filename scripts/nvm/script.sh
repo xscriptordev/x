@@ -7,7 +7,7 @@ echo "Installing Next.js + TypeScript environment on Arch Linux..."
 x pacman -Syu --noconfirm
 
 # --- Base dependencies ---
-x pacman -S --needed --noconfirm git curl wget base-devel ca-certificates lsb-release gnupg
+x pacman -S --needed --noconfirm git curl wget base-devel ca-certificates lsb-release gnupg || true
 
 # --- Install NVM (Node Version Manager) ---
 if [ ! -d "$HOME/.nvm" ]; then

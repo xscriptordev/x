@@ -17,5 +17,5 @@ curl -sL https://raw.githubusercontent.com/xscriptordev/x/main/scripts/qemu/scri
 ### To install nvm+ node + typescript + npm + pnpm + yarn run the following command:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/xscriptordev/x/main/scripts/qemu/script.sh | bash
+curl -sL https://raw.githubusercontent.com/xscriptordev/x/main/scripts/nvm/script.sh | bash
 ```
