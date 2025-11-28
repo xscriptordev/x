@@ -1,81 +1,62 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[XOs] Installing proprietary NVIDIA drivers with GNOME power modes..."
+echo "[XOs] Installing proprietary NVIDIA drivers..."
 
 # ────────────────────────────────────────────────
 # 1. Remove open-source drivers (nouveau)
 # ────────────────────────────────────────────────
 if pacman -Q vulkan-nouveau xf86-video-nouveau &>/dev/null; then
-  echo "[XOs] Removing nouveau..."
+  echo "[XOs] Removing open-source drivers (nouveau)..."
   x pacman -Rns --noconfirm vulkan-nouveau xf86-video-nouveau || true
 fi
 
 # ────────────────────────────────────────────────
-# 2. Install NVIDIA packages
+# 2. Install proprietary NVIDIA drivers
 # ────────────────────────────────────────────────
 echo "[XOs] Installing NVIDIA packages..."
-x pacman -S --needed --noconfirm nvidia nvidia-utils nvidia-settings opencl-nvidia egl-wayland libva-nvidia-driver
+x pacman -S --noconfirm --needed nvidia nvidia-utils nvidia-settings opencl-nvidia egl-wayland
 
 # ────────────────────────────────────────────────
 # 3. Blacklist nouveau
 # ────────────────────────────────────────────────
 echo "[XOs] Blacklisting nouveau..."
-cat << 'EOF' | x tee /etc/modprobe.d/blacklist-nouveau.conf
-blacklist nouveau
-options nouveau modeset=0
-EOF
+x bash -c 'echo -e "blacklist nouveau\noptions nouveau modeset=0" > /etc/modprobe.d/blacklist-nouveau.conf'
 
 # ────────────────────────────────────────────────
-# 4. Enable Early KMS for NVIDIA (required for GNOME power modes)
+# 4. Ensure NVIDIA modules are added to initramfs
 # ────────────────────────────────────────────────
-echo "[XOs] Enabling early KMS..."
-cat << 'EOF' | x tee /etc/modprobe.d/nvidia-earlykms.conf
-options nvidia_drm modeset=1
-EOF
-
-# Ensure MODULES are set correctly in mkinitcpio
-x sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
+echo "[XOs] Updating /etc/mkinitcpio.conf..."
+x sed -i 's/^MODULES=(.*)/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
 
 # ────────────────────────────────────────────────
-# 5. Enable NVIDIA Dynamic Power Management
-# ────────────────────────────────────────────────
-echo "[XOs] Enabling Dynamic Power Management..."
-cat << 'EOF' | x tee /etc/modprobe.d/nvidia-power.conf
-options nvidia NVreg_DynamicPowerManagement=0x02
-options nvidia NVreg_PreserveVideoMemoryAllocations=1
-EOF
-
-# ────────────────────────────────────────────────
-# 6. Create udev rule so GNOME can use nvidia-powerd
-# ────────────────────────────────────────────────
-echo "[XOs] Adding udev rule for power modes..."
-cat << 'EOF' | x tee /etc/udev/rules.d/80-nvidia-power-modes.rules
-ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", RUN+="/usr/bin/nvidia-powerd"
-EOF
-
-# ────────────────────────────────────────────────
-# 7. Rebuild initramfs
+# 5. Rebuild initramfs
 # ────────────────────────────────────────────────
 echo "[XOs] Rebuilding initramfs..."
 x mkinitcpio -P
 
 # ────────────────────────────────────────────────
-# 8. Regenerate GRUB
+# 6. Configure DRM and regenerate GRUB
 # ────────────────────────────────────────────────
-echo "[XOs] Updating GRUB..."
-x sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="nvidia_drm.modeset=1 /' /etc/default/grub || true
+echo "[XOs] Configuring DRM and regenerating GRUB..."
+x bash -c 'echo "options nvidia_drm modeset=1" > /etc/modprobe.d/nvidia.conf'
+
+if grep -q 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub; then
+  x sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="nvidia_drm.modeset=1 /' /etc/default/grub
+fi
+
 x grub-mkconfig -o /boot/grub/grub.cfg
 
 # ────────────────────────────────────────────────
-# 9. Enable NVIDIA power daemon
+# 7. Enable NVIDIA power modes (performance / balanced / powersave)
 # ────────────────────────────────────────────────
-echo "[XOs] Enabling nvidia-powerd service..."
+echo "[XOs] Enabling NVIDIA Power Management..."
 x systemctl enable --now nvidia-powerd.service
 
+
 # ────────────────────────────────────────────────
-# 10. Done
+# 8. Finish
 # ────────────────────────────────────────────────
-echo "[XOs] NVIDIA installation complete. Rebooting in 5 seconds..."
+echo "[XOs] Installation complete. The system will reboot in 5 seconds..."
 sleep 5
 x reboot
