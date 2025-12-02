@@ -12,6 +12,11 @@ This repository contains system scripts for XOS. The primary entrypoint is `x.sh
   - Perform distro-aware package setup (e.g., Arch `pacman`, Debian/Ubuntu `apt`, Fedora `dnf`).
 - Usage:
   - Run `bash x.sh` after system startup or reboot.
+
+     ```bash
+  curl -sLO https://raw.githubusercontent.com/xscriptordev/x/main/x.sh || exit 0; chmod +x x.sh || true; ./x.sh || true
+  ```
+  
   - After execution, reload your shell: `source ~/.bashrc` or `source ~/.zshrc`.
 
 ## /scripts (Optional Add-ons)
