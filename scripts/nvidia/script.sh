@@ -36,16 +36,38 @@ echo "[XOs] Rebuilding initramfs..."
 x mkinitcpio -P
 
 # ────────────────────────────────────────────────
-# 6. Configure DRM and regenerate GRUB
+# 6. Configure DRM and update bootloader entries
 # ────────────────────────────────────────────────
-echo "[XOs] Configuring DRM and regenerating GRUB..."
+echo "[XOs] Configuring DRM kernel mode setting..."
 x bash -c 'echo "options nvidia_drm modeset=1" > /etc/modprobe.d/nvidia.conf'
 
-if grep -q 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub; then
-  x sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="nvidia_drm.modeset=1 /' /etc/default/grub
+BOOTLOADER=""
+if command -v bootctl &>/dev/null && bootctl is-installed &>/dev/null; then
+  BOOTLOADER="systemd-boot"
+elif [[ -f /boot/loader/loader.conf ]] || [[ -d /boot/loader/entries ]]; then
+  BOOTLOADER="systemd-boot"
+elif [[ -f /etc/default/grub ]] || command -v grub-mkconfig &>/dev/null; then
+  BOOTLOADER="grub"
 fi
 
-x grub-mkconfig -o /boot/grub/grub.cfg
+if [[ "$BOOTLOADER" == "systemd-boot" ]]; then
+  echo "[XOs] Updating systemd-boot entries with nvidia_drm.modeset=1..."
+  entries_dir="/boot/loader/entries"
+  if [[ -d "$entries_dir" ]]; then
+    for entry in "$entries_dir"/*.conf; do
+      [[ -f "$entry" ]] || continue
+      if ! grep -qE '(^|[[:space:]])nvidia_drm\.modeset=1([[:space:]]|$)' "$entry"; then
+        x sed -i '/^options/s/$/ nvidia_drm.modeset=1/' "$entry"
+      fi
+    done
+  fi
+else
+  echo "[XOs] Regenerating GRUB with nvidia_drm.modeset=1..."
+  if ! grep -q 'nvidia_drm.modeset=1' /etc/default/grub 2>/dev/null; then
+    x sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"\\(.*\\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\\1 nvidia_drm.modeset=1\"/' /etc/default/grub
+  fi
+  x grub-mkconfig -o /boot/grub/grub.cfg
+fi
 
 # ────────────────────────────────────────────────
 # 7. Enable NVIDIA power modes (performance / balanced / powersave)
