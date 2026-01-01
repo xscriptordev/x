@@ -13,7 +13,7 @@ This repository contains system scripts for XOS. The primary entrypoint is `x.sh
 - Usage:
   - Run `bash x.sh` after system startup or reboot.
 
-     ```bash
+  ```bash
   curl -sLO https://raw.githubusercontent.com/xscriptordev/x/main/x.sh || exit 0; chmod +x x.sh || true; ./x.sh || true
   ```
   
