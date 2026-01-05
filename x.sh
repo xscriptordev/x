@@ -201,12 +201,8 @@ if command -v code &>/dev/null; then
   code --install-extension xscriptor.xglass || echo "[!] Failed to install xscriptor.xglass"
 fi
 
-palette_dir="$HOME/.local/share/org.gnome.Ptyxis/palettes"
-mkdir -p "$palette_dir"
-curl -fsSL -o "$palette_dir/xscriptor-theme.palette" "https://raw.githubusercontent.com/xscriptordev/terminal/main/ptyxis/xscriptor-theme.palette" || echo "[!] Failed to download xscriptor-theme.palette"
-curl -fsSL -o "$palette_dir/xscriptor-theme-inverted.palette" "https://raw.githubusercontent.com/xscriptordev/terminal/main/ptyxis/xscriptor-theme-inverted.palette" || echo "[!] Failed to download xscriptor-theme-inverted.palette"
-curl -fsSL -o "$palette_dir/xretro.palette" "https://raw.githubusercontent.com/xscriptordev/terminal/main/ptyxis/xretro.palette" || echo "[!] Failed to download xretro.palette"
-curl -fsSL -o "$palette_dir/Xscriptor-Dark-Candy.palette" "https://raw.githubusercontent.com/xscriptordev/terminal/main/ptyxis/Xscriptor-Dark-Candy.palette" || echo "[!] Failed to download Xscriptor-Dark-Candy.palette"
+wget -qO- https://raw.githubusercontent.com/xscriptordev/terminal/main/gnome-terminal/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/xscriptordev/terminal/main/ghostty/install.sh | bash
 
 echo " Done. Reload your shell:"
 echo "   source ~/.bashrc  or  source ~/.zshrc"
