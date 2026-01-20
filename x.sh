@@ -201,8 +201,11 @@ if command -v code &>/dev/null; then
   code --install-extension xscriptor.xglass || echo "[!] Failed to install xscriptor.xglass"
 fi
 
-wget -qO- https://raw.githubusercontent.com/xscriptordev/terminal/main/gnome-terminal/install.sh | bash
+
 wget -qO- https://raw.githubusercontent.com/xscriptordev/terminal/main/ghostty/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/xscriptordev/terminal/main/ptyxis/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xscriptordev/xfetch/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xscriptordev/xtop/main/install.sh | bash
 
 echo " Done. Reload your shell:"
 echo "   source ~/.bashrc  or  source ~/.zshrc"
