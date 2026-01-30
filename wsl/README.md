@@ -11,23 +11,33 @@ This script automates the bootstrapping of a fresh WSL (Windows Subsystem for Li
 
 ## Usage
 
-### Remote Execution (One-Liner)
-Run this as root/sudo on your fresh WSL installation:
+### Method 1: Download and Run (Recommended)
+This is the most reliable method.
+
+1.  **Download the script**:
+    ```bash
+    wget https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh
+    ```
+2.  **Make it executable**:
+    ```bash
+    chmod +x install.sh
+    ```
+3.  **Run as root**:
+    ```bash
+    sudo ./install.sh
+    ```
+
+### Method 2: Remote Execution
+If you prefer a one-liner:
 
 ```bash
-# Using curl (Recommended)
 curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh | sudo bash
-
-# Using wget
-wget -qO- https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh | sudo bash
 ```
 
-### Manual Execution
-1. Clone or download the file.
-2. Make it executable and run as root:
-   ```bash
-   chmod +x install.sh
-   sudo ./install.sh
-   ```
-
-> **Note:** After installation, you must restart WSL (`wsl --shutdown` in PowerShell) for the default user change to take effect.
+> **Important:** After installation, you **MUST** restart your WSL instance for the user change to take effect.
+>
+> In Windows PowerShell/CMD:
+> ```powershell
+> wsl --shutdown
+> ```
+> Then open your WSL terminal again. You should be logged in as `xscriptor`.

@@ -17,7 +17,8 @@ USER_NAME="xscriptor"
 
 # 1. Prompt for Password
 echo "Enter password for new user '$USER_NAME':"
-read -s USER_PASS
+# Force read from /dev/tty so it works even if the script is piped (curl | bash)
+read -s USER_PASS < /dev/tty
 echo
 if [ -z "$USER_PASS" ]; then
     echo "[!] Password cannot be empty."
