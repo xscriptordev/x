@@ -1,43 +1,41 @@
-# XScriptor WSL Setup
+# XScriptor WSL Bootstrap
 
-This script automates the bootstrapping of a fresh WSL (Windows Subsystem for Linux) instance.
+This script automates the initial bootstrapping of a fresh WSL (Windows Subsystem for Linux) instance.
 
-## What it does
-- **User Setup**: Creates a new user `xscriptor` and prompts you to set a password.
-- **Boot Configuration**: Configures `/etc/wsl.conf` to make `xscriptor` the default user and enable systemd.
-- **Sudo Wrapper**: Installs the `x` wrapper (`x pacman` -> `sudo pacman`).
-- **Environment**: Installs `zsh`, `oh-my-zsh` + plugins, git aliases, and common tools (`yay` on Arch).
-- **Optimized**: Skips GUI applications and VS Code extensions to keep the layer thin.
+## Overview
 
-## Usage
+This process is split into two stages:
+1.  **Bootstrap (Root)**: Creates the user, configures WSL/DNS, and installs base packages.
+2.  **Setup (User)**: Configures the shell, aliases, and tools for the `xscriptor` user.
 
-### Method 1: Download and Run (Recommended)
-This is the most reliable method.
+## Stage 1: Bootstrap (Run as Root)
 
-1.  **Download the script**:
-    ```bash
-    wget https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh
-    ```
-2.  **Make it executable**:
-    ```bash
-    chmod +x install.sh
-    ```
-3.  **Run as root**:
-    ```bash
-    sudo ./install.sh
-    ```
+This script must be run as `root` on a fresh WSL instance.
 
-### Method 2: Remote Execution
-If you prefer a one-liner:
+### Usage
 
 ```bash
+# Download and run as root
 curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh | sudo bash
 ```
 
-> **Important:** After installation, you **MUST** restart your WSL instance for the user change to take effect.
->
-> In Windows PowerShell/CMD:
-> ```powershell
-> wsl --shutdown
-> ```
-> Then open your WSL terminal again. You should be logged in as `xscriptor`.
+### What it does
+- **User Creation**: Creates `xscriptor` and sets password.
+- **Privileges**: Grants sudo access.
+- **WSL Config**: Updates `/etc/wsl.conf` to:
+    - Set `xscriptor` as the default user on boot.
+    - Enable `systemd`.
+    - Ensure DNS generation is enabled (`generateResolvConf=true`).
+- **Base Deps**: Installs minimal dependencies (git, curl, wget, zsh, go).
+
+> **Important:** After this stage, restart WSL (`wsl --shutdown`) and reopen the terminal. You should be logged in as `xscriptor`.
+
+## Stage 2: User Setup (Run as xscriptor)
+
+After restarting, run the setup script to finish configuring your environment.
+
+See [setup/README.md](../setup/README.md) for details.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/setup/install.sh | bash
+```
