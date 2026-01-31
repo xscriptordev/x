@@ -138,13 +138,17 @@ alias l='ls -CF'
 echo "[User] Setting up Environment..."
 
 # Install Yay (Arch only)
-if command -v pacman &>/dev/null && ! command -v yay &>/dev/null; then
-    echo "[User] Installing yay..."
-    cd /tmp
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -s --noconfirm
-    cd ~
+if command -v pacman &>/dev/null; then
+    if ! command -v yay &>/dev/null; then
+        echo "[User] Installing yay..."
+        cd /tmp
+        git clone https://aur.archlinux.org/yay.git
+        cd yay
+        makepkg -s --noconfirm
+        cd ~
+    else
+        echo "[User] yay detectado, se omite instalación"
+    fi
 fi
 
 # Install Oh-My-Zsh
@@ -201,9 +205,13 @@ su - "$USER_NAME" -c "/home/$USER_NAME/x_wsl_setup_inner.sh"
 # Cleanup
 rm "/home/$USER_NAME/x_wsl_setup_inner.sh"
 
-if command -v pacman &>/dev/null && ! command -v yay &>/dev/null; then
-    if ls /tmp/yay/*.pkg.tar.* &>/dev/null; then
-        pacman -U --noconfirm /tmp/yay/*.pkg.tar.*
+if command -v pacman &>/dev/null; then
+    if ! command -v yay &>/dev/null; then
+        if ls /tmp/yay/*.pkg.tar.* &>/dev/null; then
+            pacman -U --noconfirm /tmp/yay/*.pkg.tar.*
+        fi
+    else
+        echo "[XOs] yay ya instalado, se omite instalación"
     fi
 fi
 
