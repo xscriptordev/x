@@ -8,7 +8,7 @@ set -euo pipefail
 # It does NOT install user-specific tools (Oh-My-Zsh, Aliases).
 # Run this as ROOT.
 
-echo "[XOs] Starting WSL Bootstrap..."
+echo "[X] Starting WSL Bootstrap..."
 
 # Ensure we are root
 if [ "$EUID" -ne 0 ]; then
@@ -34,6 +34,7 @@ if id "$USER_NAME" &>/dev/null; then
 else
     echo "[+] Creating user $USER_NAME..."
     useradd -m -s /bin/bash "$USER_NAME"
+    usermod -aG wheel "$USER_NAME"
     echo "$USER_NAME:$USER_PASS" | chpasswd
     echo "[+] Password set for $USER_NAME"
 fi
@@ -43,6 +44,7 @@ echo "[+] Granting sudo privileges..."
 if command -v pacman &>/dev/null; then
     # Arch
     if [ ! -d "/etc/sudoers.d" ]; then mkdir -p /etc/sudoers.d; fi
+    echo "%wheel ALL=(ALL) ALL" > "/etc/sudoers.d/wheel"
     echo "$USER_NAME ALL=(ALL) ALL" > "/etc/sudoers.d/$USER_NAME"
 elif command -v apt &>/dev/null; then
     # Debian/Ubuntu
@@ -57,10 +59,7 @@ if [ -f /etc/wsl.conf ]; then
     cp /etc/wsl.conf /etc/wsl.conf.bak
 fi
 
-# We enable systemd and ensure network generation is ON (standard behavior).
-# If DNS issues persist, one might set generateResolvConf=false and manually set DNS,
-# but usually ensuring systemd-resolved doesn't conflict is better.
-# For a clean bootstrap, we stick to standard but explicit configuration.
+# We enable systemd and disable network generation to avoid DNS issues.
 cat > /etc/wsl.conf <<EOF
 [user]
 default=$USER_NAME
@@ -69,8 +68,13 @@ default=$USER_NAME
 systemd=true
 
 [network]
-generateResolvConf=true
+generateResolvConf=false
 EOF
+
+# Manually set DNS to Google to avoid WSL issues
+echo "[+] Configuring manual DNS (8.8.8.8)..."
+rm -f /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 # 5. Install Base Dependencies (for user setup later)
 echo "[XOs] Installing base dependencies..."
@@ -88,6 +92,6 @@ elif command -v apt &>/dev/null; then
     chsh -s $(which zsh) "$USER_NAME"
 fi
 
-echo "[XOs] Bootstrap Complete!"
-echo "[XOs] Please restart your WSL instance: wsl --shutdown"
-echo "[XOs] After restart, log in as '$USER_NAME' and run the setup script."
+echo "[X] Bootstrap Complete!"
+echo "[X] Please restart your WSL instance: wsl --shutdown"
+echo "[X] After restart, log in as '$USER_NAME' and run the setup script."
