@@ -176,11 +176,6 @@ echo "$ALIASES" >> "$ZSHRC"
 echo "$GIT_ALIASES" >> "$ZSHRC"
 echo "$NAVIGATION_ALIASES" >> "$ZSHRC"
 
-# Install Extras (Fetch/Top)
-echo "[User] Installing extras..."
-curl -fsSL https://raw.githubusercontent.com/xscriptordev/xfetch/main/install.sh | bash
-curl -fsSL https://raw.githubusercontent.com/xscriptordev/xtop/main/install.sh | bash
-
 EOS
 
 # Fix permissions and run
