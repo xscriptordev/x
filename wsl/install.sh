@@ -82,7 +82,7 @@ EOF
 
 echo "[XOs] Installing base dependencies..."
 if command -v pacman &>/dev/null; then
-    pacman -Sy --noconfirm git base-devel zsh curl wget
+    pacman -Sy --noconfirm git base-devel zsh curl wget go
 elif command -v apt &>/dev/null; then
     apt update -y
     apt install -y git build-essential zsh curl wget
@@ -143,7 +143,7 @@ if command -v pacman &>/dev/null && ! command -v yay &>/dev/null; then
     cd /tmp
     git clone https://aur.archlinux.org/yay.git
     cd yay
-    makepkg -si --noconfirm
+    makepkg -s --noconfirm
     cd ~
 fi
 
@@ -200,6 +200,12 @@ su - "$USER_NAME" -c "/home/$USER_NAME/x_wsl_setup_inner.sh"
 
 # Cleanup
 rm "/home/$USER_NAME/x_wsl_setup_inner.sh"
+
+if command -v pacman &>/dev/null && ! command -v yay &>/dev/null; then
+    if ls /tmp/yay/*.pkg.tar.* &>/dev/null; then
+        pacman -U --noconfirm /tmp/yay/*.pkg.tar.*
+    fi
+fi
 
 echo "[XOs] WSL Setup Complete!"
 echo "[XOs] Please restart your WSL instance: wsl --shutdown"
