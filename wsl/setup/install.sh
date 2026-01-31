@@ -19,10 +19,10 @@ fi
 echo "[Setup] Installing dependencies..."
 
 if command -v pacman &>/dev/null; then
-  sudo pacman -Sy --noconfirm git zsh curl wget
+  sudo pacman -Sy --noconfirm git zsh curl wget base-devel
 elif command -v apt &>/dev/null; then
   sudo apt update -y
-  sudo apt install -y git zsh curl wget
+  sudo apt install -y git zsh curl wget build-essential
 else
   echo "[ERROR] Unsupported distro."
   exit 1
