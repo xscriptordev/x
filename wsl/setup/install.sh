@@ -15,12 +15,26 @@ if [ "$EUID" -eq 0 ]; then
   exit 1
 fi
 
+# 0. Install Essential Dependencies
+# We sudo install these to ensure they exist for the rest of the script.
+echo "[Setup] Checking and installing dependencies..."
+if command -v pacman &>/dev/null; then
+    echo "[Setup] Detected Arch Linux (pacman). Updating and installing..."
+    sudo pacman -Syu --noconfirm git zsh curl wget
+elif command -v apt &>/dev/null; then
+    echo "[Setup] Detected Debian/Ubuntu (apt). Updating and installing..."
+    sudo apt update -y
+    sudo apt install -y git zsh curl wget
+fi
+
 # 1. Install 'x' Wrapper
 # We install it to ~/.local/bin to avoid sudo if possible, or use sudo for /usr/bin if preferred.
 # The user requested "wrapper for x in place of sudo".
 # Let's put it in ~/.local/bin and ensure PATH includes it.
 echo "[Setup] Installing 'x' wrapper..."
-mkdir -p "$HOME/.local/bin"
+if [ ! -d "$HOME/.local/bin" ]; then
+    mkdir -p "$HOME/.local/bin"
+fi
 
 cat > "$HOME/.local/bin/x" << "EOF"
 #!/usr/bin/env bash
@@ -50,11 +64,17 @@ declare -A plugins=(
   ["zsh-autocomplete"]="https://github.com/marlonrichert/zsh-autocomplete"
 )
 
+# Check for git
+if ! command -v git &>/dev/null; then
+    echo "[!] Git is not installed. Please install git."
+    exit 1
+fi
+
 for name in "${!plugins[@]}"; do
   dest="$ZSH_CUSTOM/plugins/$name"
   if [ ! -d "$dest" ]; then
     echo "    Cloning $name..."
-    git clone --depth=1 "${plugins[$name]}" "$dest"
+    git clone --depth=1 "${plugins[$name]}" "$dest" || echo "[!] Failed to clone $name"
   else
     echo "    $name already installed."
   fi

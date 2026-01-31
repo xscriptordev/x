@@ -77,7 +77,9 @@ echo "[XOs] Installing base dependencies..."
 if command -v pacman &>/dev/null; then
     # Arch: git, base-devel, zsh, curl, wget, go (needed for yay/others later)
     # We update first to avoid 404s
-    pacman -Sy --noconfirm git base-devel zsh curl wget go
+    pacman -Syu --noconfirm git base-devel zsh curl wget go
+    # Set zsh as default shell for user
+    chsh -s /usr/bin/zsh "$USER_NAME"
 elif command -v apt &>/dev/null; then
     # Debian/Ubuntu
     apt update -y
