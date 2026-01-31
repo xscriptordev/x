@@ -10,7 +10,7 @@ Run the setup script to configure your environment:
 
 ```bash
 # Download and run directly
-curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/setup/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/wsl/setup/install.sh | bash
 ```
 
 ## What it does
