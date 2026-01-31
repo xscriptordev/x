@@ -16,7 +16,9 @@ This script must be run as `root` on a fresh WSL instance.
 
 ```bash
 # Download and run as root
-curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh | sudo bash
+wget https://raw.githubusercontent.com/xscriptordev/x/main/wsl/install.sh
+chmod +x install.sh
+sudo ./install.sh
 ```
 
 ### What it does
@@ -37,5 +39,7 @@ After restarting, run the setup script to finish configuring your environment.
 See [setup/README.md](../setup/README.md) for details.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/xscriptordev/x/main/setup/install.sh | bash
+wget https://raw.githubusercontent.com/xscriptordev/x/main/wsl/setup/install.sh
+chmod +x install.sh
+./install.sh
 ```
